@@ -1,0 +1,183 @@
+:root{
+  font-family: system-ui, Arial, sans-serif;
+
+  /* 🎀 Coquette pastel palette */
+  --cream: #fff7fb;
+  --cream-2: #fff0f9;
+  --pink-milk: #ffe3f3;
+  --pink-soft: #ffd3ee;
+  --pink: #ff69d9;
+  --pink-2: #ff9ae8;
+  --lilac: #f2e8ff;
+
+  --text: #3a2440;          /* texto “cacao” suave */
+  --muted: rgba(58, 36, 64, 0.70);
+
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-2: rgba(255, 255, 255, 0.58);
+  --stroke: rgba(255, 105, 217, 0.28);
+
+  --shadow: rgba(22, 8, 26, 0.12);
+  --glow: rgba(255, 105, 217, 0.22);
+}
+
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+
+  /* fondo pastel coquette (blanco + rosas + perlita) */
+  background:
+    radial-gradient(900px 520px at 18% 12%, rgba(255, 105, 217, 0.14), transparent 60%),
+    radial-gradient(760px 520px at 85% 18%, rgba(255, 154, 232, 0.18), transparent 62%),
+    radial-gradient(900px 650px at 55% 92%, rgba(242, 232, 255, 0.35), transparent 58%),
+    linear-gradient(180deg, var(--cream), var(--cream-2));
+}
+
+/* =====================
+   HUD
+===================== */
+.hud{
+  width: 960px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Pastillas coquette glass */
+.stats{
+  display: flex;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 999px;
+
+  background: linear-gradient(180deg, var(--glass), var(--glass-2));
+  border: 1px solid var(--stroke);
+
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 12px 30px var(--shadow),
+    0 0 0 1px rgba(255,255,255,0.45) inset,
+    0 0 34px rgba(255, 105, 217, 0.10);
+}
+
+/* Texto de ayuda */
+.hint{
+  font-size: 14px;
+  color: var(--muted);
+  padding: 10px 14px;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255, 105, 217, 0.18);
+
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 10px 24px rgba(22, 8, 26, 0.08),
+    0 0 26px rgba(255, 105, 217, 0.08);
+}
+
+/* =====================
+   PANEL TOP 3
+===================== */
+.panel{
+  width: 960px;
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  border-radius: 18px;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.60));
+  border: 1px solid rgba(255, 105, 217, 0.22);
+
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 14px 36px rgba(22, 8, 26, 0.10),
+    0 0 40px rgba(255, 105, 217, 0.08);
+}
+
+.panel-title{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #432a49;
+}
+
+/* perlitas coquette */
+.panel-title::after{
+  content:"";
+  width: 62px;
+  height: 12px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255,255,255,0.95) 0 35%, transparent 36% 100%),
+    radial-gradient(circle, rgba(255,255,255,0.85) 0 35%, transparent 36% 100%);
+  background-size: 12px 12px, 12px 12px;
+  background-position: 0 50%, 6px 50%;
+  opacity: 0.9;
+  box-shadow: 0 0 18px rgba(255, 105, 217, 0.10);
+}
+
+/* TOP3 */
+#top3{
+  margin: 0;
+  padding-left: 18px;
+}
+#top3 li{
+  margin: 6px 0;
+  color: rgba(58, 36, 64, 0.92);
+}
+#top3 li::marker{
+  color: var(--pink);
+}
+
+/* =====================
+   CANVAS (FONDO BLANCO COQUETTE)
+===================== */
+#game{
+  border-radius: 22px;
+
+  /* “escenario” claro para que Mimi destaque */
+  background:
+    radial-gradient(900px 520px at 22% 18%, rgba(255, 105, 217, 0.14), transparent 58%),
+    radial-gradient(900px 700px at 80% 70%, rgba(255, 154, 232, 0.16), transparent 58%),
+    radial-gradient(900px 700px at 50% 110%, rgba(255, 227, 243, 0.85), transparent 55%),
+    linear-gradient(180deg, #ffffff, var(--cream));
+
+  border: 1px solid rgba(255, 105, 217, 0.24);
+
+  box-shadow:
+    0 20px 60px rgba(22, 8, 26, 0.18),
+    0 0 0 1px rgba(255,255,255,0.75) inset,
+    0 0 60px rgba(255, 105, 217, 0.10);
+}
+
+/* =====================
+   EXTRA: hover suave
+===================== */
+@media (prefers-reduced-motion: no-preference){
+  .panel, .stats, .hint, #game{
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .panel:hover, .stats:hover, .hint:hover{
+    transform: translateY(-1px);
+    border-color: rgba(255, 105, 217, 0.32);
+    box-shadow:
+      0 18px 45px rgba(22, 8, 26, 0.12),
+      0 0 60px rgba(255, 105, 217, 0.12);
+  }
+}

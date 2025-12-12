@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MIMI REX 💗</title>
+    <link rel="icon" type="image/jpeg" href="dino.jpg" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="hud">
+
+        <div class="stats">
+            <div>❤️ Vidas: <span id="lives">3</span></div>
+            <div>🎀 Lazos: <span id="score">0</span></div>
+            <div>⏱️ Tiempo: <span id="time">30.0</span>s</div>
+            <div>🏁 Mejor: <span id="best">—</span></div>
+        </div>
+
+        <div class="hint">A/D o ←/→ mover · Space saltar · Shift dash · R reiniciar</div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">🏆 Top 3</div>
+        <ol id="top3"></ol>
+    </div>
+
+    <canvas id="game" width="960" height="540"></canvas>
+
+
+    <script src="game.js"></script>
+</body>
+
+</html>
