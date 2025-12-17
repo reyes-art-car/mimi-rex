@@ -543,10 +543,10 @@ function drawSpikes(s) {
 }
 
 function drawSlime(s) {
-  ctx.fillStyle = "rgba(198, 165, 255, 0.35)";
+  ctx.fillStyle = "rgba(81, 26, 176, 0)";
   ctx.fillRect(s.x, s.y, s.w, s.h);
 
-  ctx.strokeStyle = "rgba(255, 105, 217, 0.18)";
+  ctx.strokeStyle = "rgba(255, 105, 217, 0)";
   ctx.lineWidth = 1;
   ctx.strokeRect(s.x, s.y, s.w, s.h);
 }
