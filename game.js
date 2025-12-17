@@ -11,7 +11,7 @@ const top3El  = document.getElementById("top3");
 // ASSETS (MIMI)
 // =====================
 const dinoImg = new Image();
-dinoImg.src = "dino.jpg"; // mismo fichero que usas en el <link rel="icon"...>
+dinoImg.src = "img/mimi.svg"; // mismo fichero que usas en el <link rel="icon"...>
 let dinoReady = false;
 dinoImg.onload = () => (dinoReady = true);
 
@@ -261,9 +261,9 @@ function winRun() {
   endTime = performance.now();
   const elapsed = (endTime - startTime) / 1000;
 
-  let name = prompt("💗 ¡MIMI REX lo ha logrado! Escribe tu nombre:", "Jugador");
-  if (!name) name = "Jugador";
-  name = name.trim().slice(0, 16) || "Jugador";
+  let name = prompt("💗 ¡MIMI REX lo ha logrado! Escribe tu nombre en el Ranking:", "Jugadoquett");
+  if (!name) name = "Jugadoquett";
+  name = name.trim().slice(0, 16) || "Jugadoquett";
 
   submitResult(name, elapsed, score);
 }
@@ -486,7 +486,7 @@ function drawCloudPlatform(p) {
   const grad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
   if (p.type === "fall") {
     grad.addColorStop(0, "rgba(255, 190, 230, 0.95)");
-    grad.addColorStop(1, "rgba(255, 220, 245, 0.92)");
+    grad.addColorStop(1, "rgba(255, 220, 245, 0.95)");
   } else {
     grad.addColorStop(0, "rgba(255, 240, 250, 0.98)");
     grad.addColorStop(1, "rgba(255, 220, 240, 0.95)");
@@ -497,20 +497,6 @@ function drawCloudPlatform(p) {
   roundRect(p.x, baseY, p.w, baseH, r);
   ctx.fill();
 
-  // “burbujas” nube arriba
-  const bubbles = Math.max(3, Math.floor(p.w / 70));
-  for (let i = 0; i < bubbles; i++) {
-    const t = (i + 1) / (bubbles + 1);
-    const cx = p.x + p.w * t;
-    const cy = baseY + 2;
-    const rad = 14 + (i % 2) * 6;
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, rad, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
-    ctx.fill();
-  }
-
   // borde sutil rosa
   ctx.strokeStyle = "rgba(255, 105, 217, 0.35)";
   ctx.lineWidth = 1.4;
@@ -519,7 +505,7 @@ function drawCloudPlatform(p) {
 
   // brillo
   ctx.globalAlpha = 0.25;
-  ctx.fillStyle = "rgba(255,255,255,1)";
+  ctx.fillStyle = "rgba(252, 156, 196, 1)";
   roundRect(p.x + 8, baseY + 4, Math.max(0, p.w - 16), 6, 6);
   ctx.fill();
 
@@ -571,7 +557,7 @@ function drawGoal(g) {
   ctx.fillRect(g.x, g.y, g.w, g.h);
 
   // banderita rosa + mini lazo
-  ctx.fillStyle = "rgba(255, 105, 217, 0.85)";
+  ctx.fillStyle = "rgba(121, 20, 93, 0.85)";
   ctx.fillRect(g.x + g.w, g.y + 10, 56, 22);
 
   ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
@@ -632,7 +618,7 @@ function drawBow(b) {
   ctx.fill();
 
   // brillo
-  ctx.strokeStyle = "rgba(255,255,255,0.35)";
+  ctx.strokeStyle = "rgba(204, 34, 34, 0.35)";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.arc(x - 10, y - 1, 6, -0.8, 0.6);

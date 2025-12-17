@@ -30,7 +30,6 @@ body{
   place-items: center;
   color: var(--text);
 
-  /* fondo pastel coquette (blanco + rosas + perlita) */
   background:
     radial-gradient(900px 520px at 18% 12%, rgba(255, 105, 217, 0.14), transparent 60%),
     radial-gradient(760px 520px at 85% 18%, rgba(255, 154, 232, 0.18), transparent 62%),
@@ -105,31 +104,6 @@ body{
   box-shadow:
     0 14px 36px rgba(22, 8, 26, 0.10),
     0 0 40px rgba(255, 105, 217, 0.08);
-}
-
-.panel-title{
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  color: #432a49;
-}
-
-/* perlitas coquette */
-.panel-title::after{
-  content:"";
-  width: 62px;
-  height: 12px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle, rgba(255,255,255,0.95) 0 35%, transparent 36% 100%),
-    radial-gradient(circle, rgba(255,255,255,0.85) 0 35%, transparent 36% 100%);
-  background-size: 12px 12px, 12px 12px;
-  background-position: 0 50%, 6px 50%;
-  opacity: 0.9;
-  box-shadow: 0 0 18px rgba(255, 105, 217, 0.10);
 }
 
 /* TOP3 */
