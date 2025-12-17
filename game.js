@@ -553,14 +553,14 @@ function drawSlime(s) {
 
 function drawGoal(g) {
   // poste
-  ctx.fillStyle = "rgba(80, 60, 80, 0.30)";
+  ctx.fillStyle = "rgba(126, 97, 115, 0.3)";
   ctx.fillRect(g.x, g.y, g.w, g.h);
 
   // banderita rosa + mini lazo
-  ctx.fillStyle = "rgba(121, 20, 93, 0.85)";
+  ctx.fillStyle = "rgba(172, 35, 134, 0.85)";
   ctx.fillRect(g.x + g.w, g.y + 10, 56, 22);
 
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.fillStyle = "rgba(220, 131, 180, 0.9)";
   ctx.fillRect(g.x + g.w + 8, g.y + 16, 10, 10);
 }
 
