@@ -525,10 +525,10 @@ function roundRect(x, y, w, h, r) {
 
 function drawSpikes(s) {
   // pinchos “cute” (no agresivo)
-  ctx.fillStyle = "rgba(255, 105, 217, 0.60)";
+  ctx.fillStyle = "rgba(250, 218, 242, 0.10)";
   ctx.fillRect(s.x, s.y, s.w, s.h);
 
-  ctx.fillStyle = "rgba(120, 30, 90, 0.18)";
+  ctx.fillStyle = "rgba(120, 30, 90, 0.60)";
   const spikesN = Math.max(3, Math.floor(s.w / 12));
   for (let i=0;i<spikesN;i++){
     const w = s.w / spikesN;
