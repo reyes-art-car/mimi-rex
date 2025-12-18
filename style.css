@@ -27,6 +27,7 @@ body{
   min-height: 100vh;
   display: grid;
   place-items: center;
+  align-content: center;
   color: var(--text);
 
   background:
@@ -41,7 +42,7 @@ body{
 ===================== */
 .panel{
   width: 960px;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   padding: 14px 16px;
   border-radius: 18px;
 
@@ -60,16 +61,18 @@ body{
   margin: 0;
   padding-left: 18px;
 }
+
 #top3 li{
   margin: 6px 0;
   color: rgba(58, 36, 64, 0.92);
 }
+
 #top3 li::marker{
   color: var(--pink);
 }
 
 /* =====================
-   CANVAS (FONDO BLANCO COQUETTE)
+   CANVAS 
 ===================== */
 #game{
   border-radius: 22px;
