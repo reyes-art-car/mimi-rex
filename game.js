@@ -11,7 +11,7 @@ document.head.appendChild(fontLink);
 document.body.style.fontFamily = '"Press Start 2P", cursive';
 
 // =====================
-// ASSETS (IMG > ICONOS)
+// RECURSOS (IMÁGENES)
 // =====================
 const dinoImg = new Image();
 dinoImg.src = "img/mimi.svg"; 
@@ -23,13 +23,13 @@ bowImg.src = "img/lazo.png";
 let bowReady = false;
 bowImg.onload = () => (bowReady = true);
 
-// Corazón vidas (vivos)
+// Corazón vidas (lleno)
 const heartImg = new Image();
 heartImg.src = "img/heartComplete.png"; 
 let heartReady = false;
 heartImg.onload = () => (heartReady = true);
 
-// Corazón vidas (perdidos)
+// Corazón vidas (vacío)
 const brokenHeartImg = new Image();
 brokenHeartImg.src = "img/brokenHeart.png";
 let brokenHeartReady = false;
@@ -41,7 +41,7 @@ let clockReady = false;
 clockImg.onload = () => (clockReady = true);
 
 // =====================
-// INPUT (Controles del Juego)
+// ENTRADA (CONTROLES)
 // =====================
 const keys = new Set();
 window.addEventListener("keydown", (e) => {
@@ -52,7 +52,7 @@ window.addEventListener("keydown", (e) => {
 window.addEventListener("keyup", (e) => keys.delete(e.code));
 
 // =====================
-// CONFIG
+// CONFIGURACIÓN
 // =====================
 const GRAVITY = 1800;
 const FLOOR_Y = 480;
@@ -74,7 +74,7 @@ const START_LIVES = 3;
 const STORAGE_KEY = "mimi_rex_top3_v2";
 
 // =====================
-// WORLD
+// MUNDO (NIVEL)
 // =====================
 const platforms = [
   { x: 0,    y: FLOOR_Y, w: 2600, h: 60, type: "solid" },
@@ -130,7 +130,7 @@ let bows = [
 const goal = { x: 2450, y: FLOOR_Y - 90, w: 15, h: 90 };
 
 // =====================
-// PLAYER
+// JUGADOR
 // =====================
 const player = {
   x: 120, y: 200, w: 56, h: 56,
@@ -151,7 +151,7 @@ let score = 0;
 
 let startTime = 0;
 let endTime = null;
-let status = "PLAYING"; // PLAYING | WIN | LOSE
+let status = "PLAYING"; 
 let respawnLock = 0;
 
 let onSlime = false;
@@ -160,20 +160,20 @@ let onSlime = false;
 let bestPlayer = "—";
 
 // =====================
-// TOP 3 (Usando localStorage)
+// RANKING (TOP 3)
 // =====================
-function loadTop3() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) return [];
-  try {
-    return JSON.parse(stored);
-  } catch {
+async function fetchTop3() {
+  const { data, error } = await supabaseClient
+    .from('scores')
+    .select('*')
+    .order('score', { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error("Error cargando ranking (fetchTop3):", JSON.stringify(error, null, 2));
     return [];
   }
-}
-
-function saveTop3(arr) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  return data;
 }
 
 // formato de tiempo en segundos
@@ -181,45 +181,52 @@ function formatTime(t) {
   return `${t.toFixed(2)}s`;
 }
 
-// from para calcular score > tiempo + lazos (0.11*lazo)
+// Función para calcular puntuación > tiempo + lazos (0.11*lazo)
 function calcScore(t, bows) {
   return Math.max(0, TIME_LIMIT - t) + (bows * 0.11);
 }
 
-function renderTop3() {
-  const top = loadTop3();
+async function renderTop3() {
+  const top = await fetchTop3();
   top3El.innerHTML = "";
-  if (!top.length) {
+  if (!top || !top.length) {
     top3El.innerHTML = "<li style='list-style:none;'>No hay rankings aún. ¡Sé el primero!</li>";
     bestPlayer = "—";
     return;
   }
   top.forEach((e, i) => {
     const li = document.createElement("li");
-    const finalScore = calcScore(e.time, e.score);
-    li.textContent = `${e.name} - ${finalScore.toFixed(2)} pts`;
+    const finalScore = e.score || 0;
+    const pName = e.player_name || "Anónimo";
+    li.textContent = `${pName} - ${Math.round(finalScore)} pts`;
     li.style.fontSize = "15px"; 
     li.style.marginBottom = "5px";
     li.style.marginLeft = "40px";
     top3El.appendChild(li);
   });
-  const bestScore = calcScore(top[0].time, top[0].score);
-  bestPlayer = `${top[0].name} (${bestScore.toFixed(2)} pts)`;
+  const best = top[0];
+  bestPlayer = `${best.player_name || "Anónimo"} (${Math.round(best.score || 0)} pts)`;
 }
 
-function submitResult(name, timeSeconds, pts) {
-  const top = loadTop3();
-  top.push({ name, time: timeSeconds, score: pts });
-  top.sort((a, b) => {
-    return calcScore(b.time, b.score) - calcScore(a.time, a.score);
-  });
-  top.splice(3); 
-  saveTop3(top);
-  renderTop3();
+async function submitResult(name, timeSeconds, bows) {
+  const finalScore = calcScore(timeSeconds, bows);
+
+  const { error } = await supabaseClient
+    .from('scores')
+    .insert([
+      { player_name: name, score: Math.round(finalScore) }
+    ]);
+
+  if (error) {
+    console.error("Error guardando resultado (submitResult):", JSON.stringify(error, null, 2));
+    alert("Error al guardar en la BBDD. Revisa la consola (F12) para ver el mensaje detallado.\n\nPosible causa: Las columnas 'player_name' o 'score' no existen en la tabla.");
+  } else {
+    renderTop3();
+  }
 }
 
 // =====================
-// HELPERS
+// UTILIDADES
 // =====================
 function aabb(a, b) {
   return (
@@ -239,12 +246,13 @@ function circleRectCollide(c, r) {
 }
 
 // =====================
-// CASES: RESET / WIN / LOSE
+// ESTADOS: REINICIO / VICTORIA / DERROTA
 // =====================
 function resetRun() {
   lives = START_LIVES;
   timeLeft = TIME_LIMIT;
   score = 0;
+  keys.clear();
 
   status = "MENU";
   endTime = null;
@@ -309,7 +317,7 @@ function winRun() {
 }
 
 // =====================
-// PHYSICS & COLLISIONS
+// FÍSICAS Y COLISIONES
 // =====================
 let last = performance.now();
 let dt = 0;
@@ -397,7 +405,7 @@ function updateFallingPlatforms() {
 }
 
 // =====================
-// LOOP
+// BUCLE PRINCIPAL
 // =====================
 function update() {
   const now = performance.now();
@@ -500,7 +508,7 @@ function update() {
 }
 
 // =====================
-// DRAW (COQUETTE)
+// DIBUJADO 
 // =====================
 function drawSoftShadow(x, y, w, h, alpha = 0.18) {
   const shadowHeight = 14;
@@ -654,7 +662,6 @@ function drawBars() {
 }
 
 function drawOverlay() {
-  // Dibuja stats en el canvas durante PLAYING
   if (status === "PLAYING") {
     ctx.save();
     ctx.font = '14px "Press Start 2P"';
@@ -776,7 +783,7 @@ function draw() {
   }
 }
 
-// init > final
+// Inicialización
 renderTop3();
 resetRun();
 update();
