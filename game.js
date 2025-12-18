@@ -15,8 +15,13 @@ dinoImg.src = "img/mimi.svg"; // mismo fichero que usas en el <link rel="icon"..
 let dinoReady = false;
 dinoImg.onload = () => (dinoReady = true);
 
-// Si tu dino es pixel-art, esto ayuda (si es foto, no pasa nada)
-ctx.imageSmoothingEnabled = false;
+// =====================
+// ASSET LAZO 🎀
+// =====================
+const bowImg = new Image();
+bowImg.src = "img/lazo.png";
+let bowReady = false;
+bowImg.onload = () => (bowReady = true);
 
 // =====================
 // INPUT
@@ -45,7 +50,7 @@ const COYOTE_MS  = 90;
 const DASH_SPEED = 900;
 const DASH_TIME  = 0.10;
 
-const TIME_LIMIT  = 30.0;
+const TIME_LIMIT  = 60.0;
 const START_LIVES = 3;
 
 const STORAGE_KEY = "mimi_rex_top3_v2";
@@ -90,17 +95,17 @@ const slime = [
 
 // 🎀 LAZOS
 let bows = [
-  { x: 300, y: 360, r: 12, taken:false },
-  { x: 350, y: 360, r: 12, taken:false },
-  { x: 560, y: 300, r: 12, taken:false },
-  { x: 610, y: 300, r: 12, taken:false },
-  { x: 840, y: 260, r: 12, taken:false },
-  { x: 900, y: 260, r: 12, taken:false },
-  { x: 1210, y: 320, r: 12, taken:false },
-  { x: 1260, y: 320, r: 12, taken:false },
-  { x: 1540, y: 280, r: 12, taken:false },
-  { x: 1600, y: 280, r: 12, taken:false },
-  { x: 1860, y: 340, r: 12, taken:false },
+  { x: 300, y: 360, r: 12, w: 28, h: 28, taken:false },
+  { x: 350, y: 360, r: 12, w: 28, h: 28, taken:false },
+  { x: 560, y: 300, r: 12, w: 28, h: 28, taken:false },
+  { x: 610, y: 300, r: 12, w: 28, h: 28, taken:false },
+  { x: 840, y: 260, r: 12, w: 28, h: 28, taken:false },
+  { x: 900, y: 260, r: 12, w: 28, h: 28, taken:false },
+  { x: 1210, y: 320, r: 12, w: 28, h: 28, taken:false },
+  { x: 1260, y: 320, r: 12, w: 28, h: 28, taken:false },
+  { x: 1540, y: 280, r: 12, w: 28, h: 28, taken:false },
+  { x: 1600, y: 280, r: 12, w: 28, h: 28, taken:false },
+  { x: 1860, y: 340, r: 12, w: 28, h: 28, taken:false },
 ];
 
 // Meta final
@@ -463,34 +468,48 @@ function update() {
 // =====================
 // DRAW (COQUETTE)
 // =====================
-function drawSoftShadow(x, y, w, h, alpha = 0.22) {
+function drawSoftShadow(x, y, w, h, alpha = 0.18) {
+  const shadowHeight = 14;
+  const topY = y + h + 2;
+
   ctx.save();
-  ctx.fillStyle = `rgba(60, 20, 50, ${alpha})`;
-  ctx.beginPath();
-  ctx.ellipse(x + w/2, y + h + 8, w * 0.45, 8, 0, 0, Math.PI * 2);
-  ctx.fill();
+
+  // degradado vertical
+  const gradV = ctx.createLinearGradient(
+    0, topY,
+    0, topY + shadowHeight
+  );
+  gradV.addColorStop(0, `rgba(240, 128, 190, ${alpha})`);
+  gradV.addColorStop(1, "rgba(240, 128, 190, 0)");
+
+  ctx.fillStyle = gradV;
+  ctx.fillRect(x, topY, w, shadowHeight);
+
   ctx.restore();
 }
 
 function drawCloudPlatform(p) {
-  // sombra flotante
-  drawSoftShadow(p.x, p.y, p.w, p.h, 0.18);
+  // sombra flotante (ligeramente más sutil para pasteles)
+  drawSoftShadow(p.x, p.y, p.w, p.h, 0.15);
 
-  // cuerpo nube
+  // cuerpo nube o suelo
   const baseY = p.y;
   const baseH = p.h;
   const r = Math.min(18, baseH);
 
   ctx.save();
 
-  // degradado suave
-  const grad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
-  if (p.type === "fall") {
-    grad.addColorStop(0, "rgba(255, 190, 230, 0.95)");
-    grad.addColorStop(1, "rgba(255, 220, 245, 0.95)");
+  let grad;
+  if (p.y === FLOOR_Y) {
+    // Suelo: gradiente verde pastel simulando hierba
+    grad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
+    grad.addColorStop(0, "rgba(180, 220, 150, 0.95)"); // Verde claro pastel
+    grad.addColorStop(1, "rgba(140, 200, 120, 0.95)"); // Verde más oscuro pastel
   } else {
-    grad.addColorStop(0, "rgba(255, 240, 250, 0.98)");
-    grad.addColorStop(1, "rgba(255, 220, 240, 0.95)");
+    // Nubes: gradiente blanco pastel con toque coqueto
+    grad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
+    grad.addColorStop(0, "rgba(255, 250, 250, 0.98)"); // Blanco suave
+    grad.addColorStop(1, "rgba(255, 240, 245, 0.95)"); // Blanco con leve rosa pastel
   }
 
   // rect base redondeado
@@ -498,15 +517,23 @@ function drawCloudPlatform(p) {
   roundRect(p.x, baseY, p.w, baseH, r);
   ctx.fill();
 
-  // borde sutil rosa
-  ctx.strokeStyle = "rgba(255, 105, 217, 0.35)";
+  // borde sutil (verde para suelo, rosa suave para nubes)
+  if (p.y === FLOOR_Y) {
+    ctx.strokeStyle = "rgba(100, 180, 100, 0.35)"; // Verde pastel
+  } else {
+    ctx.strokeStyle = "rgba(255, 200, 220, 0.30)"; // Rosa pastel sutil
+  }
   ctx.lineWidth = 1.4;
   roundRect(p.x, baseY, p.w, baseH, r);
   ctx.stroke();
 
-  // brillo
+  // brillo (más verde para suelo, blanco para nubes)
   ctx.globalAlpha = 0.25;
-  ctx.fillStyle = "rgba(252, 156, 196, 1)";
+  if (p.y === FLOOR_Y) {
+    ctx.fillStyle = "rgba(200, 240, 180, 1)"; // Brillo verde pastel
+  } else {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; // Brillo blanco
+  }
   roundRect(p.x + 8, baseY + 4, Math.max(0, p.w - 16), 6, 6);
   ctx.fill();
 
@@ -525,7 +552,6 @@ function roundRect(x, y, w, h, r) {
 }
 
 function drawSpikes(s) {
-  // pinchos “cute” (no agresivo)
   ctx.fillStyle = "rgba(250, 218, 242, 0.10)";
   ctx.fillRect(s.x, s.y, s.w, s.h);
 
@@ -559,87 +585,40 @@ function drawGoal(g) {
 
   // banderita rosa + mini lazo
   ctx.fillStyle = "rgba(172, 35, 134, 0.85)";
-  ctx.fillRect(g.x + g.w, g.y + 10, 56, 22);
+  ctx.fillRect(g.x + g.w, g.y + 10, 60, 42);
 
   ctx.fillStyle = "rgba(220, 131, 180, 0.9)";
   ctx.fillRect(g.x + g.w + 8, g.y + 16, 10, 10);
 }
 
 function drawBow(b) {
-  if (b.taken) return;
+  if (b.taken || !bowReady) return;
 
   const t = performance.now() / 1000;
   const bob = Math.sin(t * 3 + b.x * 0.01) * 2.2;
 
-  const x = b.x;
-  const y = b.y + bob;
+  const x = b.x - b.w / 2;
+  const y = b.y - b.h / 2 + bob;
 
-  // glow
-  ctx.save();
-  ctx.globalAlpha = 0.95;
-  ctx.beginPath();
-  ctx.arc(x, y, b.r + 7, 0, Math.PI*2);
-  ctx.fillStyle = "rgba(255, 105, 217, 0.18)";
-  ctx.fill();
-  ctx.restore();
-
-  // centro
-  ctx.beginPath();
-  ctx.arc(x, y, 4.2, 0, Math.PI*2);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-  ctx.fill();
-
-  // lazo izq
-  ctx.beginPath();
-  ctx.ellipse(x - 8, y, 9.5, 7.5, 0, 0, Math.PI*2);
-  ctx.fillStyle = "rgba(255, 105, 217, 0.92)";
-  ctx.fill();
-
-  // lazo der
-  ctx.beginPath();
-  ctx.ellipse(x + 8, y, 9.5, 7.5, 0, 0, Math.PI*2);
-  ctx.fillStyle = "rgba(255, 154, 232, 0.88)";
-  ctx.fill();
-
-  // colitas
-  ctx.beginPath();
-  ctx.moveTo(x - 2, y + 4);
-  ctx.lineTo(x - 10, y + 18);
-  ctx.lineTo(x - 1, y + 14);
-  ctx.closePath();
-  ctx.fillStyle = "rgba(255, 105, 217, 0.85)";
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 2, y + 4);
-  ctx.lineTo(x + 10, y + 18);
-  ctx.lineTo(x + 1, y + 14);
-  ctx.closePath();
-  ctx.fillStyle = "rgba(255, 154, 232, 0.82)";
-  ctx.fill();
-
-  // brillo
-  ctx.strokeStyle = "rgba(204, 34, 34, 0.35)";
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.arc(x - 10, y - 1, 6, -0.8, 0.6);
-  ctx.stroke();
+  // imagen del lazo
+  ctx.drawImage(bowImg, x, y, b.w, b.h);
 }
+
 
 function drawBars() {
   for (const b of bars) {
     // valla pastel visible
-    ctx.fillStyle = "rgba(255, 200, 235, 0.95)";
+    ctx.fillStyle = "rgba(210, 180, 140, 0.95)";
     ctx.fillRect(b.x, b.y, b.w, b.h);
-
+    
     // rayitas
-    ctx.fillStyle = "rgba(200, 80, 160, 0.35)";
+    ctx.fillStyle = "rgba(160, 120, 90, 0.6)";
     for (let y = b.y + 8; y < b.y + b.h; y += 14) {
       ctx.fillRect(b.x, y, b.w, 3);
     }
 
     // borde
-    ctx.strokeStyle = "rgba(255, 105, 217, 0.30)";
+    ctx.strokeStyle = "rgba(180, 140, 110, 0.4)";
     ctx.lineWidth = 1.2;
     ctx.strokeRect(b.x, b.y, b.w, b.h);
   }

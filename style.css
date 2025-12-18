@@ -4,7 +4,7 @@
   /* 🎀 Coquette pastel palette */
   --cream: #fff7fb;
   --cream-2: #fff0f9;
-  --pink-milk: #ffe3f3;
+  --pink-milk: #e3e7ff;
   --pink-soft: #ffd3ee;
   --pink: #ff69d9;
   --pink-2: #ff9ae8;
@@ -127,10 +127,10 @@ body{
 
   /* “escenario” claro para que Mimi destaque */
   background:
-    radial-gradient(900px 520px at 22% 18%, rgba(255, 105, 217, 0.14), transparent 58%),
-    radial-gradient(900px 700px at 80% 70%, rgba(255, 154, 232, 0.16), transparent 58%),
-    radial-gradient(900px 700px at 50% 110%, rgba(255, 227, 243, 0.85), transparent 55%),
-    linear-gradient(180deg, #ffffff, var(--cream));
+    radial-gradient(900px 520px at 22% 18%, rgba(105, 233, 255, 0.14), transparent 58%),
+    radial-gradient(900px 700px at 80% 70%, rgba(154, 243, 255, 0.16), transparent 58%),
+    radial-gradient(900px 700px at 50% 110%, rgba(227, 253, 255, 0.85), transparent 55%),
+    linear-gradient(180deg, #e9fafa, var(--cream));
 
   border: 1px solid rgba(255, 105, 217, 0.24);
 
