@@ -1,27 +1,42 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const livesEl = document.getElementById("lives");
-const timeEl  = document.getElementById("time");
-const scoreEl = document.getElementById("score");
-const bestEl  = document.getElementById("best");
-const top3El  = document.getElementById("top3");
+const top3El = document.getElementById("top3");
+
+// Cargar fuente "Press Start 2P" para toda la app
+const fontLink = document.createElement("link");
+fontLink.href = "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap";
+fontLink.rel = "stylesheet";
+document.head.appendChild(fontLink);
+document.body.style.fontFamily = '"Press Start 2P", cursive';
 
 // =====================
-// ASSETS (MIMI)
+// ASSETS 
 // =====================
 const dinoImg = new Image();
 dinoImg.src = "img/mimi.svg"; // mismo fichero que usas en el <link rel="icon"...>
 let dinoReady = false;
 dinoImg.onload = () => (dinoReady = true);
 
-// =====================
-// ASSET LAZO 🎀
-// =====================
 const bowImg = new Image();
 bowImg.src = "img/lazo.png";
 let bowReady = false;
 bowImg.onload = () => (bowReady = true);
+
+const heartImg = new Image();
+heartImg.src = "img/heartComplete.png"; // Corazón completo para vidas restantes
+let heartReady = false;
+heartImg.onload = () => (heartReady = true);
+
+const brokenHeartImg = new Image();
+brokenHeartImg.src = "img/brokenHeart.png"; // Corazón roto para vidas perdidas
+let brokenHeartReady = false;
+brokenHeartImg.onload = () => (brokenHeartReady = true);
+
+const clockImg = new Image();
+clockImg.src = "img/clock.png";
+let clockReady = false;
+clockImg.onload = () => (clockReady = true);
 
 // =====================
 // INPUT
@@ -50,7 +65,7 @@ const COYOTE_MS  = 90;
 const DASH_SPEED = 900;
 const DASH_TIME  = 0.10;
 
-const TIME_LIMIT  = 60.0;
+const TIME_LIMIT  = 60.0;  // Cambiado a 60 segundos
 const START_LIVES = 3;
 
 const STORAGE_KEY = "mimi_rex_top3_v2";
@@ -138,46 +153,63 @@ let respawnLock = 0;
 
 let onSlime = false;
 
+// Variable global para el mejor (top1)
+let bestPlayer = "—";
+
 // =====================
-// TOP 3 (Nombre + Tiempo + Lazos)
+// TOP 3 (Usando localStorage)
 // =====================
 function loadTop3() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) return [];
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
+    return JSON.parse(stored);
   } catch {
     return [];
   }
 }
+
 function saveTop3(arr) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 }
+
 function formatTime(t) {
   return `${t.toFixed(2)}s`;
 }
+
+function calcScore(t, bows) {
+  return Math.max(0, TIME_LIMIT - t) + (bows * 0.11);
+}
+
 function renderTop3() {
   const top = loadTop3();
   top3El.innerHTML = "";
   if (!top.length) {
-    const li = document.createElement("li");
-    li.textContent = "Aún no hay marcas ✨";
-    top3El.appendChild(li);
-    bestEl.textContent = "—";
+    top3El.innerHTML = "<li>No hay rankings aún. ¡Sé el primero!</li>";
+    bestPlayer = "—";
     return;
   }
-  top.forEach((e) => {
+  top.forEach((e, i) => {
     const li = document.createElement("li");
-    li.textContent = `${e.name} — ${formatTime(e.time)} — 🎀 ${e.score}`;
+    const finalScore = calcScore(e.time, e.score);
+    li.textContent = `${e.name} - ${finalScore.toFixed(2)} pts`;
+    li.style.fontSize = "15px"; 
+    li.style.marginBottom = "5px";
+    li.style.marginLeft = "40px";
     top3El.appendChild(li);
   });
-  bestEl.textContent = `${top[0].name} ${formatTime(top[0].time)} (🎀 ${top[0].score})`;
+  const bestScore = calcScore(top[0].time, top[0].score);
+  bestPlayer = `${top[0].name} (${bestScore.toFixed(2)} pts)`;
 }
+
 function submitResult(name, timeSeconds, pts) {
   const top = loadTop3();
   top.push({ name, time: timeSeconds, score: pts });
-  top.sort((a,b) => (a.time - b.time) || (b.score - a.score));
-  saveTop3(top.slice(0,3));
+  top.sort((a, b) => {
+    return calcScore(b.time, b.score) - calcScore(a.time, a.score);
+  });
+  top.splice(3); // Mantén solo top 3
+  saveTop3(top);
   renderTop3();
 }
 
@@ -199,11 +231,6 @@ function circleRectCollide(c, r) {
   const dy = c.y - closestY;
   return (dx*dx + dy*dy) <= (c.r*c.r);
 }
-function updateHUD() {
-  livesEl.textContent = String(lives);
-  timeEl.textContent  = timeLeft.toFixed(1);
-  scoreEl.textContent = String(score);
-}
 
 // =====================
 // RESET / WIN / LOSE
@@ -213,7 +240,7 @@ function resetRun() {
   timeLeft = TIME_LIMIT;
   score = 0;
 
-  status = "PLAYING";
+  status = "MENU";
   endTime = null;
   respawnLock = 0;
 
@@ -239,7 +266,6 @@ function resetRun() {
   }
 
   startTime = performance.now();
-  updateHUD();
 }
 
 function loseLife() {
@@ -257,7 +283,6 @@ function loseLife() {
     dashTimer = 0;
     coyote = 0;
   }
-  updateHUD();
 }
 
 function winRun() {
@@ -270,8 +295,12 @@ function winRun() {
   let name = prompt("💗 ¡MIMI REX lo ha logrado! Escribe tu nombre en el Ranking:", "Jugadoquett");
   if (!name) name = "Jugadoquett";
   name = name.trim().slice(0, 16) || "Jugadoquett";
+  name = name.trim().slice(0, 12) || "Jugadoquett";
 
   submitResult(name, elapsed, score);
+
+  // Reinicia automáticamente después de ganar
+  resetRun();
 }
 
 // =====================
@@ -380,6 +409,13 @@ function update() {
     resetRun();
   }
 
+  if (status === "MENU") {
+    if (keys.has("KeyP")) {
+      status = "PLAYING";
+      startTime = performance.now();
+    }
+  }
+
   if (status === "PLAYING") {
     timeLeft = Math.max(0, timeLeft - dt);
     if (timeLeft <= 0) {
@@ -458,7 +494,6 @@ function update() {
     if (aabb(player, goal)) winRun();
 
     camX = player.x - 200;
-    updateHUD();
   }
 
   draw();
@@ -604,7 +639,6 @@ function drawBow(b) {
   ctx.drawImage(bowImg, x, y, b.w, b.h);
 }
 
-
 function drawBars() {
   for (const b of bars) {
     // valla pastel visible
@@ -625,27 +659,32 @@ function drawBars() {
 }
 
 function drawOverlay() {
-  if (status === "PLAYING") return;
-
-  ctx.save();
-  ctx.globalAlpha = 0.85;
-  ctx.fillStyle = "rgba(255, 210, 240, 0.85)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.globalAlpha = 1;
-
-  ctx.fillStyle = "#3a2440";
-  ctx.font = "900 42px system-ui";
-  const title = status === "WIN" ? "💗 ¡MIMI REX LO LOGRÓ!" : "💔 OH NO...";
-  ctx.fillText(title, 160, 240);
-
-  ctx.font = "500 18px system-ui";
-  const elapsed = endTime ? (endTime - startTime)/1000 : 0;
-  const msg = status === "WIN"
-    ? `Tiempo: ${formatTime(elapsed)} · 🎀 Lazos: ${score} · Pulsa R para jugar otra vez`
-    : `Pulsa R para reintentar (Mimi cree en ti) 🎀`;
-  ctx.fillText(msg, 210, 290);
-
-  ctx.restore();
+  // Dibuja stats en el canvas durante PLAYING
+  if (status === "PLAYING") {
+    ctx.save();
+    ctx.font = '14px "Press Start 2P"';
+    ctx.fillStyle = "#3a2440";
+    // Dibuja corazones para vidas 
+    for (let i = 0; i < START_LIVES; i++) {
+      const img = i < lives ? heartImg : brokenHeartImg;
+      const ready = i < lives ? heartReady : brokenHeartReady;
+      if (ready) {
+        ctx.drawImage(img, 20 + i * 30, 20, 28, 28);
+      }
+    }
+    // Dibuja imagen del lazo y el score
+    if (bowReady) {
+      ctx.drawImage(bowImg, 20, 60, 28, 28);
+    }
+    ctx.fillText(`${score}`, 60, 80);
+    // Dibuja imagen del reloj y el tiempo
+    if (clockReady) {
+      ctx.drawImage(clockImg, 20, 100, 28, 28);
+    }
+    ctx.fillText(`${timeLeft.toFixed(1)}s`, 60, 120);
+    ctx.restore();
+    return;
+  }
 }
 
 function drawPlayer() {
@@ -711,6 +750,36 @@ function draw() {
   ctx.restore();
 
   drawOverlay();
+
+  if (status === "LOSE") {
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = '36px "Press Start 2P"';
+    ctx.textAlign = "center";
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+
+    ctx.font = '16px "Press Start 2P"';
+    ctx.fillText("pulsa R para reiniciar", canvas.width / 2, canvas.height / 2 + 40);
+    ctx.restore();
+  }
+
+  if (status === "MENU") {
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = '36px "Press Start 2P"';
+    ctx.textAlign = "center";
+    ctx.fillText("PRESIONA P PARA COMENZAR", canvas.width / 2, canvas.height / 2);
+
+    ctx.font = '12px "Press Start 2P"';
+    ctx.fillText("A/D o ←/→ mover · Space saltar · Shift dash", canvas.width / 2, canvas.height / 2 + 40);
+    ctx.restore();
+  }
 }
 
 // init
