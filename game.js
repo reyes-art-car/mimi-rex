@@ -11,10 +11,10 @@ document.head.appendChild(fontLink);
 document.body.style.fontFamily = '"Press Start 2P", cursive';
 
 // =====================
-// ASSETS 
+// ASSETS (IMG > ICONOS)
 // =====================
 const dinoImg = new Image();
-dinoImg.src = "img/mimi.svg"; // mismo fichero que usas en el <link rel="icon"...>
+dinoImg.src = "img/mimi.svg"; 
 let dinoReady = false;
 dinoImg.onload = () => (dinoReady = true);
 
@@ -23,13 +23,15 @@ bowImg.src = "img/lazo.png";
 let bowReady = false;
 bowImg.onload = () => (bowReady = true);
 
+// Corazón vidas (lleno)
 const heartImg = new Image();
-heartImg.src = "img/heartComplete.png"; // Corazón completo para vidas restantes
+heartImg.src = "img/heartComplete.png"; 
 let heartReady = false;
 heartImg.onload = () => (heartReady = true);
 
+// Corazón vidas (perdidos)
 const brokenHeartImg = new Image();
-brokenHeartImg.src = "img/brokenHeart.png"; // Corazón roto para vidas perdidas
+brokenHeartImg.src = "img/brokenHeart.png";
 let brokenHeartReady = false;
 brokenHeartImg.onload = () => (brokenHeartReady = true);
 
@@ -39,11 +41,11 @@ let clockReady = false;
 clockImg.onload = () => (clockReady = true);
 
 // =====================
-// INPUT
+// INPUT (Controles del Juego)
 // =====================
 const keys = new Set();
 window.addEventListener("keydown", (e) => {
-  const block = ["ArrowLeft","ArrowRight","ArrowUp","Space","ShiftLeft","KeyA","KeyD","KeyW","KeyR"];
+  const block = ["ArrowLeft","ArrowRight","ArrowUp","Space","ShiftLeft","KeyA","KeyD","KeyW","KeyR","KeyP"];
   if (block.includes(e.code)) e.preventDefault();
   keys.add(e.code);
 });
@@ -65,13 +67,15 @@ const COYOTE_MS  = 90;
 const DASH_SPEED = 900;
 const DASH_TIME  = 0.10;
 
-const TIME_LIMIT  = 60.0;  // Cambiado a 60 segundos
+// Tiempo límite y vidas iniciales
+const TIME_LIMIT  = 60.0; 
 const START_LIVES = 3;
 
 const STORAGE_KEY = "mimi_rex_top3_v2";
 
 // =====================
 // WORLD
+// MUNDO (NIVEL)
 // =====================
 const platforms = [
   { x: 0,    y: FLOOR_Y, w: 2600, h: 60, type: "solid" },
@@ -94,7 +98,7 @@ const spikes = [
   { x: 1650, y: FLOOR_Y - 18, w: 80, h: 18 },
 ];
 
-// Barras/obstáculos del camino
+// Barras del camino
 const bars = [
   { x: 360,  y: FLOOR_Y - 60, w: 22, h: 60 },
   { x: 950,  y: FLOOR_Y - 85, w: 26, h: 85 },
@@ -102,13 +106,13 @@ const bars = [
   { x: 1980, y: FLOOR_Y - 60, w: 26, h: 60 },
 ];
 
-// Trampa: charco resbaladizo
+// Slime resbaladizo
 const slime = [
   { x: 700,  y: FLOOR_Y - 10, w: 90,  h: 10 },
   { x: 1380, y: FLOOR_Y - 10, w: 110, h: 10 },
 ];
 
-// 🎀 LAZOS
+// Posiciones de los lazos
 let bows = [
   { x: 300, y: 360, r: 12, w: 28, h: 28, taken:false },
   { x: 350, y: 360, r: 12, w: 28, h: 28, taken:false },
@@ -157,7 +161,7 @@ let onSlime = false;
 let bestPlayer = "—";
 
 // =====================
-// TOP 3 (Usando localStorage)
+// RANKING (TOP 3)
 // =====================
 function loadTop3() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -173,10 +177,12 @@ function saveTop3(arr) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 }
 
+// formato de tiempo en segundos
 function formatTime(t) {
   return `${t.toFixed(2)}s`;
 }
 
+// from para calcular score > tiempo + lazos (0.11*lazo)
 function calcScore(t, bows) {
   return Math.max(0, TIME_LIMIT - t) + (bows * 0.11);
 }
@@ -185,7 +191,7 @@ function renderTop3() {
   const top = loadTop3();
   top3El.innerHTML = "";
   if (!top.length) {
-    top3El.innerHTML = "<li>No hay rankings aún. ¡Sé el primero!</li>";
+    top3El.innerHTML = "<li style='list-style:none;'>No hay rankings aún. ¡Sé el primero!</li>";
     bestPlayer = "—";
     return;
   }
@@ -208,13 +214,13 @@ function submitResult(name, timeSeconds, pts) {
   top.sort((a, b) => {
     return calcScore(b.time, b.score) - calcScore(a.time, a.score);
   });
-  top.splice(3); // Mantén solo top 3
+  top.splice(3); 
   saveTop3(top);
   renderTop3();
 }
 
 // =====================
-// HELPERS
+// UTILIDADES
 // =====================
 function aabb(a, b) {
   return (
@@ -224,6 +230,7 @@ function aabb(a, b) {
     a.y + a.h > b.y
   );
 }
+
 function circleRectCollide(c, r) {
   const closestX = Math.max(r.x, Math.min(c.x, r.x + r.w));
   const closestY = Math.max(r.y, Math.min(c.y, r.y + r.h));
@@ -233,7 +240,7 @@ function circleRectCollide(c, r) {
 }
 
 // =====================
-// RESET / WIN / LOSE
+// ESTADOS: REINICIO / VICTORIA / DERROTA
 // =====================
 function resetRun() {
   lives = START_LIVES;
@@ -292,20 +299,18 @@ function winRun() {
   endTime = performance.now();
   const elapsed = (endTime - startTime) / 1000;
 
-  let name = prompt("💗 ¡MIMI REX lo ha logrado! Escribe tu nombre en el Ranking:", "Jugadoquett");
+  let name = prompt("¡MIMI REX lo ha logrado! Escribe tu nombre en el Ranking:", "Jugadoquett");
   if (!name) name = "Jugadoquett";
   name = name.trim().slice(0, 16) || "Jugadoquett";
   name = name.trim().slice(0, 12) || "Jugadoquett";
 
   submitResult(name, elapsed, score);
 
-  // Reinicia automáticamente después de ganar
   resetRun();
 }
 
 // =====================
-// PHYSICS & COLLISIONS
-// =====================
+// FÍSICAS Y COLISIONES
 let last = performance.now();
 let dt = 0;
 
@@ -313,7 +318,6 @@ function resolveCollisions(entity) {
   entity.onGround = false;
   onSlime = false;
 
-  // Y vs plataformas
   entity.y += entity.vy * dt;
   for (const p of platforms) {
     if (p.active === false) continue;
@@ -336,7 +340,6 @@ function resolveCollisions(entity) {
     }
   }
 
-  // Y vs barras
   for (const b of bars) {
     if (aabb(entity, b)) {
       if (entity.vy > 0) {
@@ -351,7 +354,6 @@ function resolveCollisions(entity) {
     }
   }
 
-  // X vs plataformas
   entity.x += entity.vx * dt;
   for (const p of platforms) {
     if (p.active === false) continue;
@@ -363,7 +365,6 @@ function resolveCollisions(entity) {
     }
   }
 
-  // X vs barras
   for (const b of bars) {
     if (aabb(entity, b)) {
       if (entity.vx > 0) entity.x = b.x - entity.w;
@@ -372,7 +373,6 @@ function resolveCollisions(entity) {
     }
   }
 
-  // slime
   const feet = { x: entity.x, y: entity.y + entity.h - 2, w: entity.w, h: 4 };
   for (const s of slime) {
     if (aabb(feet, s)) { onSlime = true; break; }
@@ -398,7 +398,7 @@ function updateFallingPlatforms() {
 
 // =====================
 // LOOP
-// =====================
+// BUCLE PRINCIPAL
 function update() {
   const now = performance.now();
   dt = Math.min(0.033, (now - last) / 1000);
@@ -481,7 +481,6 @@ function update() {
       if (aabb(player, sp)) { loseLife(); break; }
     }
 
-    // 🎀 recoger lazos
     const playerRect = { x: player.x, y: player.y, w: player.w, h: player.h };
     for (const b of bows) {
       if (b.taken) continue;
@@ -502,7 +501,7 @@ function update() {
 
 // =====================
 // DRAW (COQUETTE)
-// =====================
+// DIBUJADO (ESTILO COQUETTE)
 function drawSoftShadow(x, y, w, h, alpha = 0.18) {
   const shadowHeight = 14;
   const topY = y + h + 2;
@@ -524,10 +523,8 @@ function drawSoftShadow(x, y, w, h, alpha = 0.18) {
 }
 
 function drawCloudPlatform(p) {
-  // sombra flotante (ligeramente más sutil para pasteles)
   drawSoftShadow(p.x, p.y, p.w, p.h, 0.15);
 
-  // cuerpo nube o suelo
   const baseY = p.y;
   const baseH = p.h;
   const r = Math.min(18, baseH);
@@ -536,15 +533,13 @@ function drawCloudPlatform(p) {
 
   let grad;
   if (p.y === FLOOR_Y) {
-    // Suelo: gradiente verde pastel simulando hierba
     grad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
-    grad.addColorStop(0, "rgba(180, 220, 150, 0.95)"); // Verde claro pastel
-    grad.addColorStop(1, "rgba(140, 200, 120, 0.95)"); // Verde más oscuro pastel
+    grad.addColorStop(0, "rgba(180, 220, 150, 0.95)"); 
+    grad.addColorStop(1, "rgba(140, 200, 120, 0.95)"); 
   } else {
-    // Nubes: gradiente blanco pastel con toque coqueto
     grad = ctx.createLinearGradient(0, baseY, 0, baseY + baseH);
-    grad.addColorStop(0, "rgba(255, 250, 250, 0.98)"); // Blanco suave
-    grad.addColorStop(1, "rgba(255, 240, 245, 0.95)"); // Blanco con leve rosa pastel
+    grad.addColorStop(0, "rgba(255, 250, 250, 0.98)"); 
+    grad.addColorStop(1, "rgba(255, 240, 245, 0.95)"); 
   }
 
   // rect base redondeado
@@ -552,22 +547,21 @@ function drawCloudPlatform(p) {
   roundRect(p.x, baseY, p.w, baseH, r);
   ctx.fill();
 
-  // borde sutil (verde para suelo, rosa suave para nubes)
   if (p.y === FLOOR_Y) {
-    ctx.strokeStyle = "rgba(100, 180, 100, 0.35)"; // Verde pastel
+    ctx.strokeStyle = "rgba(100, 180, 100, 0.35)"; 
   } else {
-    ctx.strokeStyle = "rgba(255, 200, 220, 0.30)"; // Rosa pastel sutil
+    ctx.strokeStyle = "rgba(255, 200, 220, 0.30)";
   }
   ctx.lineWidth = 1.4;
   roundRect(p.x, baseY, p.w, baseH, r);
   ctx.stroke();
 
-  // brillo (más verde para suelo, blanco para nubes)
+  // brillo de componentes
   ctx.globalAlpha = 0.25;
   if (p.y === FLOOR_Y) {
-    ctx.fillStyle = "rgba(200, 240, 180, 1)"; // Brillo verde pastel
+    ctx.fillStyle = "rgba(200, 240, 180, 1)"; // Brillo cespede
   } else {
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; // Brillo blanco
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; // Brillo nubes
   }
   roundRect(p.x + 8, baseY + 4, Math.max(0, p.w - 16), 6, 6);
   ctx.fill();
@@ -618,7 +612,7 @@ function drawGoal(g) {
   ctx.fillStyle = "rgba(126, 97, 115, 0.3)";
   ctx.fillRect(g.x, g.y, g.w, g.h);
 
-  // banderita rosa + mini lazo
+  // bandera rosa
   ctx.fillStyle = "rgba(172, 35, 134, 0.85)";
   ctx.fillRect(g.x + g.w, g.y + 10, 60, 42);
 
@@ -639,9 +633,10 @@ function drawBow(b) {
   ctx.drawImage(bowImg, x, y, b.w, b.h);
 }
 
+// pared ladrillos
 function drawBars() {
   for (const b of bars) {
-    // valla pastel visible
+    // valla
     ctx.fillStyle = "rgba(210, 180, 140, 0.95)";
     ctx.fillRect(b.x, b.y, b.w, b.h);
     
@@ -664,7 +659,7 @@ function drawOverlay() {
     ctx.save();
     ctx.font = '14px "Press Start 2P"';
     ctx.fillStyle = "#3a2440";
-    // Dibuja corazones para vidas 
+    // Corazones para vidas 
     for (let i = 0; i < START_LIVES; i++) {
       const img = i < lives ? heartImg : brokenHeartImg;
       const ready = i < lives ? heartReady : brokenHeartReady;
@@ -672,12 +667,12 @@ function drawOverlay() {
         ctx.drawImage(img, 20 + i * 30, 20, 28, 28);
       }
     }
-    // Dibuja imagen del lazo y el score
+    // Lazo y el score
     if (bowReady) {
       ctx.drawImage(bowImg, 20, 60, 28, 28);
     }
     ctx.fillText(`${score}`, 60, 80);
-    // Dibuja imagen del reloj y el tiempo
+    // Reloj y tiempo
     if (clockReady) {
       ctx.drawImage(clockImg, 20, 100, 28, 28);
     }
@@ -687,6 +682,7 @@ function drawOverlay() {
   }
 }
 
+// dimensiones de mimi rex
 function drawPlayer() {
   const blink = respawnLock > 0 && status === "PLAYING";
   if (blink && Math.floor(performance.now()/80) % 2 !== 0) return;
@@ -708,7 +704,6 @@ function drawPlayer() {
 }
 
 function drawBackgroundSparkles() {
-  // estrellitas suaves (se ven en fondo claro)
   ctx.globalAlpha = 0.30;
   for (let i=0;i<70;i++){
     const x = ((i*173) % 2600) - camX*0.2;
@@ -727,7 +722,6 @@ function draw() {
   ctx.save();
   ctx.translate(-camX, 0);
 
-  // plataformas como nubes
   for (const p of platforms) {
     if (p.active === false) continue;
     drawCloudPlatform(p);
@@ -738,7 +732,7 @@ function draw() {
   for (const sp of spikes) drawSpikes(sp);
   drawBars();
 
-  // 🎀 lazos
+  //lazos
   for (const b of bows) drawBow(b);
 
   // meta
@@ -782,7 +776,7 @@ function draw() {
   }
 }
 
-// init
-renderTop3();
+// init > final
+// Inicialización
 resetRun();
 update();
