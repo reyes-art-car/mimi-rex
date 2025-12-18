@@ -1,7 +1,6 @@
 :root{
   font-family: system-ui, Arial, sans-serif;
 
-  /* 🎀 Coquette pastel palette */
   --cream: #fff7fb;
   --cream-2: #fff0f9;
   --pink-milk: #e3e7ff;
@@ -10,7 +9,7 @@
   --pink-2: #ff9ae8;
   --lilac: #f2e8ff;
 
-  --text: #3a2440;          /* texto “cacao” suave */
+  --text: #3a2440;   
   --muted: rgba(58, 36, 64, 0.70);
 
   --glass: rgba(255, 255, 255, 0.72);
@@ -38,55 +37,6 @@ body{
 }
 
 /* =====================
-   HUD
-===================== */
-.hud{
-  width: 960px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Pastillas coquette glass */
-.stats{
-  display: flex;
-  gap: 14px;
-  padding: 12px 16px;
-  border-radius: 999px;
-
-  background: linear-gradient(180deg, var(--glass), var(--glass-2));
-  border: 1px solid var(--stroke);
-
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-
-  box-shadow:
-    0 12px 30px var(--shadow),
-    0 0 0 1px rgba(255,255,255,0.45) inset,
-    0 0 34px rgba(255, 105, 217, 0.10);
-}
-
-/* Texto de ayuda */
-.hint{
-  font-size: 14px;
-  color: var(--muted);
-  padding: 10px 14px;
-  border-radius: 999px;
-
-  background: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255, 105, 217, 0.18);
-
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-
-  box-shadow:
-    0 10px 24px rgba(22, 8, 26, 0.08),
-    0 0 26px rgba(255, 105, 217, 0.08);
-}
-
-/* =====================
    PANEL TOP 3
 ===================== */
 .panel{
@@ -106,7 +56,6 @@ body{
     0 0 40px rgba(255, 105, 217, 0.08);
 }
 
-/* TOP3 */
 #top3{
   margin: 0;
   padding-left: 18px;
@@ -125,7 +74,6 @@ body{
 #game{
   border-radius: 22px;
 
-  /* “escenario” claro para que Mimi destaque */
   background:
     radial-gradient(900px 520px at 22% 18%, rgba(105, 233, 255, 0.14), transparent 58%),
     radial-gradient(900px 700px at 80% 70%, rgba(154, 243, 255, 0.16), transparent 58%),
@@ -144,10 +92,10 @@ body{
    EXTRA: hover suave
 ===================== */
 @media (prefers-reduced-motion: no-preference){
-  .panel, .stats, .hint, #game{
+  .panel, #game{
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .panel:hover, .stats:hover, .hint:hover{
+  .panel:hover{
     transform: translateY(-1px);
     border-color: rgba(255, 105, 217, 0.32);
     box-shadow:

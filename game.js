@@ -23,7 +23,7 @@ bowImg.src = "img/lazo.png";
 let bowReady = false;
 bowImg.onload = () => (bowReady = true);
 
-// Corazón vidas (lleno)
+// Corazón vidas (vivos)
 const heartImg = new Image();
 heartImg.src = "img/heartComplete.png"; 
 let heartReady = false;
@@ -75,7 +75,6 @@ const STORAGE_KEY = "mimi_rex_top3_v2";
 
 // =====================
 // WORLD
-// MUNDO (NIVEL)
 // =====================
 const platforms = [
   { x: 0,    y: FLOOR_Y, w: 2600, h: 60, type: "solid" },
@@ -161,7 +160,7 @@ let onSlime = false;
 let bestPlayer = "—";
 
 // =====================
-// RANKING (TOP 3)
+// TOP 3 (Usando localStorage)
 // =====================
 function loadTop3() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -220,7 +219,7 @@ function submitResult(name, timeSeconds, pts) {
 }
 
 // =====================
-// UTILIDADES
+// HELPERS
 // =====================
 function aabb(a, b) {
   return (
@@ -240,7 +239,7 @@ function circleRectCollide(c, r) {
 }
 
 // =====================
-// ESTADOS: REINICIO / VICTORIA / DERROTA
+// CASES: RESET / WIN / LOSE
 // =====================
 function resetRun() {
   lives = START_LIVES;
@@ -310,7 +309,8 @@ function winRun() {
 }
 
 // =====================
-// FÍSICAS Y COLISIONES
+// PHYSICS & COLLISIONS
+// =====================
 let last = performance.now();
 let dt = 0;
 
@@ -398,7 +398,7 @@ function updateFallingPlatforms() {
 
 // =====================
 // LOOP
-// BUCLE PRINCIPAL
+// =====================
 function update() {
   const now = performance.now();
   dt = Math.min(0.033, (now - last) / 1000);
@@ -501,7 +501,7 @@ function update() {
 
 // =====================
 // DRAW (COQUETTE)
-// DIBUJADO (ESTILO COQUETTE)
+// =====================
 function drawSoftShadow(x, y, w, h, alpha = 0.18) {
   const shadowHeight = 14;
   const topY = y + h + 2;
@@ -777,6 +777,6 @@ function draw() {
 }
 
 // init > final
-// Inicialización
+renderTop3();
 resetRun();
 update();
