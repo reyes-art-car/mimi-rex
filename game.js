@@ -64,6 +64,7 @@ const platforms = [
 
   { x: 1500, y: 320,     w: 240,  h: 20, type: "solid" },
   { x: 1820, y: 380,     w: 180,  h: 20, type: "solid" },
+  
 ];
 
 // Trampa: pinchos
@@ -75,8 +76,8 @@ const spikes = [
 
 // Barras/obstáculos del camino
 const bars = [
-  { x: 360,  y: FLOOR_Y - 70, w: 22, h: 70 },
-  { x: 950,  y: FLOOR_Y - 55, w: 26, h: 55 },
+  { x: 360,  y: FLOOR_Y - 60, w: 22, h: 60 },
+  { x: 950,  y: FLOOR_Y - 85, w: 26, h: 85 },
   { x: 1460, y: FLOOR_Y - 80, w: 22, h: 80 },
   { x: 1980, y: FLOOR_Y - 60, w: 26, h: 60 },
 ];
@@ -103,7 +104,7 @@ let bows = [
 ];
 
 // Meta final
-const goal = { x: 2450, y: FLOOR_Y - 90, w: 30, h: 90 };
+const goal = { x: 2450, y: FLOOR_Y - 90, w: 15, h: 90 };
 
 // =====================
 // PLAYER
